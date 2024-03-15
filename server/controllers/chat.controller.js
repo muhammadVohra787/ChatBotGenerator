@@ -4,7 +4,6 @@ const createChat = async (req, res) => {
   const dataArray = req.body;
   const chatName = dataArray[0].chatName;
   const userId = dataArray[0].userId;
-  console.log(chatName, userId);
   const dataRowsToProcess = dataArray.slice(1);
 
   try {
@@ -47,14 +46,10 @@ const addChatTable = async (req, res) => {
     const chatFound = await Chat.findByName(chatName, userId);
     if (!chatFound) {
       await Chat.createName(chatName, userId);
+      console.log("chat created");
       res
         .status(201)
         .json({ message: "Chat Name creation was successful", type: true });
-    } else {
-      res.status(400).json({
-        message: "A chat with this name is already been setup ",
-        type: false,
-      });
     }
   } catch (err) {
     console.error("Error creating chatname:", err);
@@ -79,10 +74,9 @@ const getChatByNameAndId = async (req, res) => {
   }
 };
 const getAllChatsByUser = async (req, res) => {
-  console.log(req.body);
   const { userId } = req.body;
   try {
-    const chatFound = await Chat.findallChatsByUserId( userId);
+    const chatFound = await Chat.findallChatsByUserId(userId);
     if (chatFound) {
       res
         .status(200)
@@ -95,9 +89,26 @@ const getAllChatsByUser = async (req, res) => {
     console.log("Error GETTING chat by name and user ID," + err);
   }
 };
+
+const deleteTheChatNamesAndChats = async (req, res) => {
+  const { chatName, userId } = req.body;
+  try {
+    await Chat.removeAllByChatName(chatName, userId);
+    res
+    .status(200)
+    .json({ message: "Successful", type: true, data:"Chat Deleted" });
+    console.log("Chat deleted");
+  } catch (error) {
+    res
+    .status(500)
+    .json({ message: "Internal Server Error", type: true, data:"Chat Not Found" });
+    console.log("Error deleting chats", error);
+  }
+};
 module.exports = {
   createChat,
   addChatTable,
   getChatByNameAndId,
   getAllChatsByUser,
+  deleteTheChatNamesAndChats,
 };

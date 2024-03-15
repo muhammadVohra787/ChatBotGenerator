@@ -2,50 +2,148 @@ import React, { useEffect, useState } from "react";
 import { useGet, usePost } from "../api/user-authentication";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import AddIcon from "@mui/icons-material/Add";
-import { Typography, Container, Button, Modal, Box, TextField } from "@mui/material";
+import { unstable_HistoryRouter } from "react-router-dom";
+import {
+  Typography,
+  Container,
+  Button,
+  Modal,
+  Box,
+  TextField,
+  CircularProgress,
+  IconButton,
+} from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { useModal } from "../components/userInput/use-modal";
 import ModalMessage from "../components/modal/ModalMessage";
+import EditIcon from "@mui/icons-material/Edit";
+import CloseIcon from "@mui/icons-material/Close";
 const Dashboard = () => {
-  const navigate = useNavigate();
-  const { isPending, mutateAsync } = usePost();
-  const [allChats, setChats] = useState([]);
-  const {
-    loginMsgBox,
-    setLoginMsgBox,
-    responseMsg,
-    setResponseMsg,
-    open,
-    setOpen,
-    handleMsgBoxClose,
-  } = useModal();
   const auth = useAuthUser();
+  const authUserId = auth && auth.user_id 
+  const navigate = useNavigate();
+  const {
+    isPending: isPending1,
+    mutateAsync: mutateAsync1,
+    isSuccess: isSuccess1,
+  } = usePost();
+  const {
+    isPending: isPending2,
+    mutateAsync: mutateAsync2,
+    isSuccess: isSuccess2,
+  } = usePost();
+  const {
+    isPending: isPending3,
+    mutateAsync: mutateAsync3,
+    isSuccess: isSuccess3,
+  } = usePost();
+  const [allChats, setAllChats] = useState([]);
+  const [newChatAdded, setNewChatAdded] = useState(false);
+  const [warningBox, setWarningBox] = useState({
+    show: false,
+    chatName: "",
+  });
+  const [open, setOpen] = useState(false);
+
   const handleClick = () => {
     setOpen(true);
   };
+  const [chatName, setChatName] = useState({
+    chatName: "",
+    helperText: "",
+    error: false,
+  });
   useEffect(() => {
-    if (!auth.user_id || auth.user_id === "" || auth.user_id === null) {
+    if (auth || !authUserId || authUserId=== "" || authUserId=== null) {
       navigate("/dashboard");
     }
-  }, [auth.user_id]);
+  }, [authUserId]);
   useEffect(() => {
-    mutateAsync({
-      postData: { userId: auth.user_id },
+    mutateAsync1({
+      postData: { userId: authUserId},
       url: "getallchats",
     }).then((res) => {
+      console.log(res.data.data);
+      setAllChats(res.data.data);
+    });
+  }, [newChatAdded]);
+
+  const handleNewNameSubmit = () => {
+    if (chatName.error === false) {
+      mutateAsync2({
+        postData: { chatName: chatName.chatName, userId: authUserId},
+        url: "addname",
+      }).then((res) => {
+        newChatAdded ? setNewChatAdded(false) : setNewChatAdded(true);
+        setTimeout(() => {
+          setOpen(false);
+        }, 1500);
+      });
+    }
+    setChatName({
+      chatName: "",
+      helperText: "",
+      error: false,
+    });
+  };
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    console.log(chatName);
+    var isValid = false;
+    var message = undefined;
+    if (name === "chatName") {
+      if (allChats.findIndex((chat) => chat.chatname === value) !== -1) {
+        isValid = true;
+        message = "You already have a chat with this name";
+      }
+
+      setChatName((prevState) => ({
+        ...prevState,
+        error: isValid,
+        helperText: message,
+        chatName: value,
+      }));
+    }
+  };
+  const handleWarning = (index) => {
+    setWarningBox({
+      message: allChats[index].chatname,
+      index: allChats[index].id,
+      show: true,
+    });
+  };
+
+  const refreshWarning = () =>
+    setWarningBox({
+      message: "",
+      id: "",
+      show: false,
+    });
+  const handleDelete = async () => {
+    mutateAsync3({
+      postData: { chatName: warningBox.message, userId: authUserId},
+      url: "deletechat",
+    }).then((res) => {
       if (res.data.type) {
-        allChats.push(res.data);
+        const updatedChats = allChats.filter(
+          (chat) => chat !== warningBox.index
+        );
+
+        setAllChats(updatedChats);
+        newChatAdded ? setNewChatAdded(false) : setNewChatAdded(true);
+        refreshWarning();
       }
     });
-  }, [allChats]);
-
+  };
   return (
     <Container maxWidth="md">
       <Typography variant="h2" color="primary">
-        All Chats:{" "}
+        All Chats:
       </Typography>
+      {isPending1 && <CircularProgress />}
+      <br />
       <>
-        {allChats ? (
+        {allChats === null ? (
           <>
             <Typography variant="h4">
               So Empty Up In here... Starts making chats now!
@@ -53,8 +151,51 @@ const Dashboard = () => {
           </>
         ) : (
           <>
-            {allChats.map((value) => {
-              return <div>{value}</div>;
+            {allChats.map((chat, index) => {
+              return (
+                <Box
+                  sx={{
+                    bgcolor: "background.paper",
+                    boxShadow: 3,
+                    p: 2,
+                    display: "flex",
+                    "&:hover": {
+                      backgroundColor: "#f0f0f0",
+                    },
+                  }}
+                  key={chat.id}
+                >
+                  <div>
+                    <IconButton
+                      sx={{
+                        p: 0,
+                        pr: 1,
+                        pl: 1,
+                      }}
+                      onClick={() => {
+                        handleWarning(index);
+                      }}
+                    >
+                      <CloseIcon />
+                    </IconButton>
+                  </div>
+                  <div>
+                    <IconButton
+                      sx={{
+                        p: 0,
+                        pr: 3,
+                        pl: 1,
+                      }}
+                      onClick={() => {
+                        handleWarning(index);
+                      }}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                  </div>
+                  <Typography variant="body1">{chat.chatname}</Typography>
+                </Box>
+              );
             })}
           </>
         )}
@@ -67,12 +208,56 @@ const Dashboard = () => {
       >
         Create a new Chat
       </Button>
-      <Modal
-        open={open}
-        onClose={() => setOpen(false)}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
+      <Modal open={open} onClose={() => setOpen(false)}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "background.paper",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "20px",
+          }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "center",
+            }}
+          >
+            {isPending2 && <CircularProgress />}
+            <TextField
+              required
+              fullWidth
+              id="chatName"
+              label="Enter a unique Chat Name"
+              name="chatName"
+              value={chatName.chatName}
+              onChange={(e) => {
+                handleChange(e);
+              }}
+              error={chatName.error}
+              helperText={chatName.helperText}
+              autoComplete="chatName"
+              disabled={isPending1}
+            />
+            <Button
+              variant="contained"
+              color="primary"
+              type="submit"
+              sx={{ mt: 2 }}
+              onClick={() => handleNewNameSubmit()}
+            >
+              Add New
+            </Button>
+          </Box>
+        </Box>
+      </Modal>
+      <Modal open={warningBox.show} onClose={refreshWarning}>
         <>
           <Box
             sx={{
@@ -87,13 +272,34 @@ const Dashboard = () => {
               borderRadius: "20px",
             }}
           >
-            <TextField/>
+            {isPending3 && <CircularProgress />}
+            <Typography variant="h5" color="primary">
+              Are you sure you want to delete this item? This can not be undone.
+            </Typography>
+            <br />
+            <Typography variant="h6" color="primary">
+              Item Name: {warningBox.message}
+            </Typography>
+            <Box sx={{ display: "flex", gap: "8px", pt: 2 }}>
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                type="submit"
+                onClick={() => handleDelete()}
+              >
+                Save
+              </Button>
+              <Button
+                variant="contained"
+                color="primary"
+                fullWidth
+                onClick={refreshWarning}
+              >
+                Cancel
+              </Button>
+            </Box>
           </Box>
-
-          {/* <ModalMessage
-            isPending={isPending}
-            responseMsg={responseMsg}
-          ></ModalMessage> */}
         </>
       </Modal>
     </Container>

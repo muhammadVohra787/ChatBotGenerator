@@ -93,7 +93,7 @@ class Chat {
     `;
     try {
       const result = await db.query(query, [chatName, userId]);
-      return result.rows;
+      return result.rows[0];
     } catch (error) {
       console.error("Error chat by name or id", error);
       throw error;
@@ -130,12 +130,13 @@ class Chat {
       const query = `SELECT * FROM chatnames where userid= $1`;
 
       const result = await db.query(query, [userId]);
-      console.log(result.rows);
       return result.rows;
     } catch (error) {
       console.log("Error getting all chats by Id", error);
       throw error;
     }
   }
+
+
 }
 module.exports = Chat;

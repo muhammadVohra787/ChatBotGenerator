@@ -29,7 +29,7 @@ export const useGet = (url) => {
 };
 
 export const usePost = () => {
-  const { isPending, mutateAsync, isSuccess } = useMutation({
+  const { isPending, mutateAsync, isSuccess, } = useMutation({
     mutationFn: async ({ postData, url }) => {
       try {
         if (STAGE === "PRODUCTION") {

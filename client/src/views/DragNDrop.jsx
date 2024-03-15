@@ -36,6 +36,7 @@ import { useLastLocation } from "../PrivateRoutes";
 const DragNDrop = () => {
   const { isPending, mutateAsync } = usePost();
   const auth = useAuthUser();
+  const authUserId = auth && auth.user_id;
   const {
     loginMsgBox,
     setLoginMsgBox,
@@ -264,7 +265,7 @@ const DragNDrop = () => {
     finalSubmitArr = [];
     finalSubmitArr.push({
       chatName: chatName,
-      userId: auth.user_id,
+      userId: authUserId,
     });
     dataSet.map((currentItem) => {
       finalSubmitArr.push(currentItem.title.props.data);
