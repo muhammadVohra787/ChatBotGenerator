@@ -1,0 +1,16 @@
+{
+    "name": "my-app",
+    "engines": {
+        "node": "18.x"
+      },
+    "scripts": {
+        "start": "concurrently \"npm run server\" \"npm run client\"",
+        "server": "cd server && nodemon server",
+        "client": "cd client && npm start",
+        "install-deps": "npm i && cd server && npm install && cd ../client && npm install"
+    },
+    "dependencies": {
+        "concurrently": "^8.2.2",
+        "dotenv": "^16.4.5"
+    }
+}
