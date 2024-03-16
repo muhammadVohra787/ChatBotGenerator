@@ -40,8 +40,8 @@ function App() {
       <Route element={<TokenVerify />} path="/cf83e1357eefb8bdf/:email" />
       {/* Secure Routes */}
       <Route element={<PrivateRoutes />}>
-      <Route path="/dashboard" element={<Dashboard/>}/>
-      <Route path="/dnd" element={<DragNDrop />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/dnd/:chatname" element={<DragNDrop />} />
         <Route element={<ChangePassword />} path="/changePass" exact />
       </Route>
       {/* Secure Routes Ends here*/}

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { useGet, usePost } from "../api/user-authentication";
+import {usePost } from "../api/user-authentication";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import AddIcon from "@mui/icons-material/Add";
-import { unstable_HistoryRouter } from "react-router-dom";
 import {
   Typography,
   Container,
@@ -14,33 +13,22 @@ import {
   IconButton,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
-import { useModal } from "../components/userInput/use-modal";
-import ModalMessage from "../components/modal/ModalMessage";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
+
 const Dashboard = () => {
   const auth = useAuthUser();
-  const authUserId = auth && auth.user_id 
+  const authUserId = auth && auth.user_id;
   const navigate = useNavigate();
-  const {
-    isPending: isPending1,
-    mutateAsync: mutateAsync1,
-    isSuccess: isSuccess1,
-  } = usePost();
-  const {
-    isPending: isPending2,
-    mutateAsync: mutateAsync2,
-    isSuccess: isSuccess2,
-  } = usePost();
-  const {
-    isPending: isPending3,
-    mutateAsync: mutateAsync3,
-    isSuccess: isSuccess3,
-  } = usePost();
+  const { isPending: isPending1, mutateAsync: mutateAsync1 } = usePost();
+  const { isPending: isPending2, mutateAsync: mutateAsync2 } = usePost();
+  const { isPending: isPending3, mutateAsync: mutateAsync3 } = usePost();
   const [allChats, setAllChats] = useState([]);
   const [newChatAdded, setNewChatAdded] = useState(false);
   const [warningBox, setWarningBox] = useState({
     show: false,
+    message: "",
+    preMessage: "",
     chatName: "",
   });
   const [open, setOpen] = useState(false);
@@ -54,13 +42,14 @@ const Dashboard = () => {
     error: false,
   });
   useEffect(() => {
-    if (auth || !authUserId || authUserId=== "" || authUserId=== null) {
+    if (auth || !authUserId || authUserId === "" || authUserId === null) {
       navigate("/dashboard");
     }
   }, [authUserId]);
   useEffect(() => {
+
     mutateAsync1({
-      postData: { userId: authUserId},
+      postData: { userId: authUserId },
       url: "getallchats",
     }).then((res) => {
       console.log(res.data.data);
@@ -71,7 +60,7 @@ const Dashboard = () => {
   const handleNewNameSubmit = () => {
     if (chatName.error === false) {
       mutateAsync2({
-        postData: { chatName: chatName.chatName, userId: authUserId},
+        postData: { chatName: chatName.chatName, userId: authUserId },
         url: "addname",
       }).then((res) => {
         newChatAdded ? setNewChatAdded(false) : setNewChatAdded(true);
@@ -91,8 +80,12 @@ const Dashboard = () => {
     console.log(chatName);
     var isValid = false;
     var message = undefined;
+    var chatLength = allChats.chatName && allChats.chatName.length;
     if (name === "chatName") {
-      if (allChats.findIndex((chat) => chat.chatname === value) !== -1) {
+      if (
+        allChats.findIndex((chat) => chat.chatname === value) !== -1 &&
+        chatLength > 2
+      ) {
         isValid = true;
         message = "You already have a chat with this name";
       }
@@ -105,23 +98,28 @@ const Dashboard = () => {
       }));
     }
   };
-  const handleWarning = (index) => {
+  const handleWarningDelete = (index) => {
     setWarningBox({
       message: allChats[index].chatname,
+      preMessage: `Are you sure you want to delete this item? This can not be undone.`,
       index: allChats[index].id,
       show: true,
     });
   };
-
+  const handleEditChat = (index) => {
+    const currItem = allChats[index].chatname;
+    navigate(`/dnd/${currItem}`);
+  };
   const refreshWarning = () =>
     setWarningBox({
       message: "",
+      preMessage: "",
       id: "",
       show: false,
     });
   const handleDelete = async () => {
     mutateAsync3({
-      postData: { chatName: warningBox.message, userId: authUserId},
+      postData: { chatName: warningBox.message, userId: authUserId },
       url: "deletechat",
     }).then((res) => {
       if (res.data.type) {
@@ -173,7 +171,7 @@ const Dashboard = () => {
                         pl: 1,
                       }}
                       onClick={() => {
-                        handleWarning(index);
+                        handleWarningDelete(index);
                       }}
                     >
                       <CloseIcon />
@@ -187,7 +185,7 @@ const Dashboard = () => {
                         pl: 1,
                       }}
                       onClick={() => {
-                        handleWarning(index);
+                        handleEditChat(index);
                       }}
                     >
                       <EditIcon />
@@ -274,7 +272,7 @@ const Dashboard = () => {
           >
             {isPending3 && <CircularProgress />}
             <Typography variant="h5" color="primary">
-              Are you sure you want to delete this item? This can not be undone.
+              {warningBox.preMessage}
             </Typography>
             <br />
             <Typography variant="h6" color="primary">
@@ -288,7 +286,7 @@ const Dashboard = () => {
                 type="submit"
                 onClick={() => handleDelete()}
               >
-                Save
+                I'm Sure
               </Button>
               <Button
                 variant="contained"

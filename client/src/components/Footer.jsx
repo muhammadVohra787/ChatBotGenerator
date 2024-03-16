@@ -13,14 +13,15 @@ const Footer = () => {
       position="fixed"
       color="default"
       sx={{
+        mt: 3,
         top: "auto",
         bottom: 0,
         boxShadow: `0px 0px 10px gray`,
-        zIndex: 9999,
+
         width: "100%",
       }}
     >
-      <Toolbar sx={{ zIndex: 999999 }}>
+      <Toolbar>
         <Box sx={{ flexGrow: 1 }}>
           <Typography variant="body1" color="primary">
             © 2023 MV Auth, All Rights Reserved.

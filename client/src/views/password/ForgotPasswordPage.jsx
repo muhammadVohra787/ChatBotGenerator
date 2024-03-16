@@ -52,7 +52,7 @@ const ForgotPasswordPage = () => {
           icon: <ResponseIcon icon={res.data.type} />,
         });
         if (res.data.type) {
-          navigate(`//${userData.email}`);
+          navigate(`/cf83e1357eefb8bdf/${userData.email}`);
         }
       } catch (error) {
         console.error("Error submitting form:", error);

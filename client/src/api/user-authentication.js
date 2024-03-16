@@ -11,7 +11,7 @@ const wait = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 console.log(STAGE);
 
 export const useGet = (url) => {
-  const { isPending, data, isLoading  } = useQuery({
+  const { isPending, data, isLoading,queryFn  } = useQuery({
     queryKey: ["useTestData"],
     queryFn: async () => {
       try {
@@ -25,7 +25,7 @@ export const useGet = (url) => {
       }
     },
   });
-  return { data, isLoading, isPending };
+  return { data, isLoading, isPending,queryFn };
 };
 
 export const usePost = () => {

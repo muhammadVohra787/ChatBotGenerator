@@ -3,12 +3,14 @@ const {
   createChat,
   addChatTable,
   getAllChatsByUser,
-  deleteTheChatNamesAndChats,
+  deleteTheChatNames,
+  getChatItems
 } = require("../controllers/chat.controller");
 const router = express.Router();
 
 router.post("/createchat", createChat);
 router.post("/addname", addChatTable);
 router.post("/getallchats", getAllChatsByUser);
-router.post("/deletechat", deleteTheChatNamesAndChats);
+router.post("/deletechat", deleteTheChatNames);
+router.post("/getchatbyname",getChatItems)
 module.exports = router;

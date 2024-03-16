@@ -151,6 +151,7 @@ const SingleSelect = ({ text, handleResponse, index, data, maximized }) => {
         bgcolor: "background.paper",
         boxShadow: "-1px 0px 1px 0px #aaa",
         p: 1,
+        mb: maximized ? 20: '',
       }}
     >
       <MinimizeClose

@@ -74,6 +74,7 @@ const getChatByNameAndId = async (req, res) => {
   }
 };
 const getAllChatsByUser = async (req, res) => {
+  //const userId = req.params.id;
   const { userId } = req.body;
   try {
     const chatFound = await Chat.findallChatsByUserId(userId);
@@ -90,19 +91,35 @@ const getAllChatsByUser = async (req, res) => {
   }
 };
 
-const deleteTheChatNamesAndChats = async (req, res) => {
+const deleteTheChatNames = async (req, res) => {
   const { chatName, userId } = req.body;
+  console.log(req.body);
   try {
-    await Chat.removeAllByChatName(chatName, userId);
+    const result = await Chat.deleteChatName(chatName, userId);
+    console.log(result);
     res
-    .status(200)
-    .json({ message: "Successful", type: true, data:"Chat Deleted" });
+      .status(200)
+      .json({ message: "Successful", type: true, data: "Chat Deleted" });
     console.log("Chat deleted");
   } catch (error) {
-    res
-    .status(500)
-    .json({ message: "Internal Server Error", type: true, data:"Chat Not Found" });
+    res.status(500).json({
+      message: "Internal Server Error",
+      type: true,
+      data: "Chat Not Found",
+    });
     console.log("Error deleting chats", error);
+  }
+};
+
+const getChatItems = async (req, res) => {
+  const { chatName, userId } = req.body;
+  
+  try {
+    const result = await Chat.getChatItemsByNameID(userId, chatName);
+    console.log(result)
+    res.status(200).json({ message: "Successful", type: true, data: result });
+  } catch (err) {
+    res.status(500).json({ message: "Item not found", type: false });
   }
 };
 module.exports = {
@@ -110,5 +127,6 @@ module.exports = {
   addChatTable,
   getChatByNameAndId,
   getAllChatsByUser,
-  deleteTheChatNamesAndChats,
+  deleteTheChatNames,
+  getChatItems,
 };

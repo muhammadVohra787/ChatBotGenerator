@@ -14,6 +14,8 @@ import {
   ListItemText,
   IconButton,
   Modal,
+  CircularProgress,
+  setRef,
 } from "@mui/material";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import SmsIcon from "@mui/icons-material/Sms";
@@ -23,7 +25,6 @@ import TextMessage from "../components/TypesOfInput/TextMesage";
 import TextQuestion from "../components/TypesOfInput/TextQuestion";
 import SingleSelect from "../components/TypesOfInput/SingleSelect";
 import FirstWrapper from "../components/DragNDropWrappers/FirstWrapper";
-import { useBeginChatData } from "../components/DragNDropWrappers/start-chat";
 import { usePost } from "../api/user-authentication";
 import { useModal } from "../components/userInput/use-modal";
 import ResponseIcon from "../components/userInput/ResponseIcon";
@@ -31,10 +32,15 @@ import ModalMessage from "../components/modal/ModalMessage";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import { useLastLocation } from "../PrivateRoutes";
-
+import useHeaders from "../components/headers/internal-label";
 const DragNDrop = () => {
-  const { isPending, mutateAsync } = usePost();
+  const { isPending: isSavingItems, mutateAsync: saveChatApi } = usePost();
+  const { isPending: isGettingChat, mutateAsync: getAllChatApi } = usePost();
+  const { isPending: isFetchingChatData, mutateAsync: getThisChatData } =
+    usePost();
+  const { boxTitleArea, setTitleArea } = useHeaders();
+  const [allChats, setAllChats] = useState([]);
+  const [newChatAdded, setNewChatAdded] = useState(false);
   const auth = useAuthUser();
   const authUserId = auth && auth.user_id;
   const {
@@ -45,15 +51,40 @@ const DragNDrop = () => {
     setOpen,
     handleMsgBoxClose,
   } = useModal();
-  const { data1, data2 } = useBeginChatData();
   var tasksLength = 0;
   const navigate = useNavigate();
-  const { chatName } = useParams();
+  const { chatname } = useParams();
+  const [fetchedData, setFetchedData] = useState([]);
   useEffect(() => {
-    if (!chatName || chatName === "" || chatName === null) {
-      navigate("/dashboard");
+    getAllChatApi({
+      postData: { userId: authUserId },
+      url: "getallchats",
+    }).then((res) => {
+      setAllChats(res.data.data);
+    });
+    console.log("1");
+  }, []);
+  useEffect(() => {
+    if (allChats.length > 0) {
+      const itemExists =
+        allChats.findIndex((chat) => chat.chatname === chatname) !== -1;
+      if (!chatname || chatname === "" || chatname === null || !itemExists) {
+        navigate("/dashboard");
+      } else {
+        // getAllChatApi({
+        //   postData: { userId: authUserId },
+        //   url: "getallchats",
+        // }).then((res) => {
+        //   setAllChats(res.data.data);
+        // });
+      }
+      setNewChatAdded(true);
     }
-  }, [chatName]);
+  }, [allChats]);
+
+  useEffect(() => {
+    console.log(fetchedData);
+  }, [fetchedData]);
   var finalSubmitArr = [];
   const [saved, setSaved] = useState({
     id: "",
@@ -79,30 +110,10 @@ const DragNDrop = () => {
     return <Component {...props} />;
   };
 
-  const [dataSet, setData] = useState([
-    {
-      id: 1,
-      type: "TextMessage",
-      title: (
-        <TextMessage
-          handleResponse={(data, index) => handleResponse(data, index, setData)}
-          data={data1}
-        />
-      ),
-    },
-    {
-      id: 2,
-      type: "TextMessage",
-
-      title: (
-        <TextMessage
-          handleResponse={(data, index) => handleResponse(data, index, setData)}
-          data={data2}
-        />
-      ),
-    },
-  ]);
-
+  const [dataSet, setData] = useState([ ]);
+  useEffect(() => {
+    console.log(dataSet);
+  }, [dataSet]);
   useEffect(() => {
     if (saved.data) {
       const dataProps = {
@@ -264,7 +275,7 @@ const DragNDrop = () => {
     console.log("here");
     finalSubmitArr = [];
     finalSubmitArr.push({
-      chatName: chatName,
+      chatName: chatname,
       userId: authUserId,
     });
     dataSet.map((currentItem) => {
@@ -277,7 +288,7 @@ const DragNDrop = () => {
       type: "",
       icon: "",
     });
-    mutateAsync({ postData: finalSubmitArr, url: "createchat" }).then((res) => {
+    saveChatApi({ postData: finalSubmitArr, url: "createchat" }).then((res) => {
       if (res.data.type) {
         setTimeout(() => {
           setResponseMsg(false);
@@ -294,12 +305,71 @@ const DragNDrop = () => {
       });
     });
   };
+  useEffect(() => {
+    var startIndex = -1;
+    
+    getThisChatData({
+      postData: { userId: authUserId, chatName: chatname },
+      url: "getchatbyname",
+    }).then((res) => {
+      setData([]);
+      const mappingList = res.data.data;
+      console.log("mappingList", mappingList);
+      res.data.data.map((value) => {
+        startIndex++;
+      
+        const resultArr = {
+          type: value.type,
+          index: startIndex,
+          mainLabel: value.mainlabel,
+          mainQuestion: value.mainquestion,
+         };
+         if (value.options && value.options !== "false") {
+          resultArr.options = value.options.map(({ id, option, response, button }) => ({
+            id,
+            option,
+            response,
+            button,
+          }));
+        }
+        const dataProps = {
+          handleResponse: handleResponse,
+          index: startIndex,
+          text: (startIndex + 1).toString(),
+          data: resultArr,
+          maximized: false,
+        };
+        setData((prevData) => [
+          ...prevData,
+          {
+            id: resultArr.index,
+            type: resultArr.type,
+            title: convertToComponent(resultArr.type, dataProps),
+          },
+        ]);
+      });
+    });
+  }, []);
+
   return (
     <>
+      {isGettingChat && (
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+          }}
+        >
+          <CircularProgress />
+        </Box>
+      )}
       <Container
         maxWidth="lg"
         sx={{
           display: "flex",
+          filter: !isGettingChat ? "none" : "blur(2px)",
         }}
       >
         <Container
@@ -335,7 +405,7 @@ const DragNDrop = () => {
           sx={{
             flexShrink: 0,
             "& .MuiDrawer-paper": {
-              mt: 7,
+              mt: 8,
               maxWidth: "350px",
               boxSizing: "border-box",
               overflowY: "auto",
@@ -344,7 +414,7 @@ const DragNDrop = () => {
         >
           {saved.saved ? (
             <>
-              <IconButton onClick={handleGoBack}>
+              <IconButton onClick={handleGoBack} sx={{ mt: 1 }}>
                 <ArrowBackIcon />
               </IconButton>
               {saved.item}
@@ -361,7 +431,7 @@ const DragNDrop = () => {
         >
           <>
             <ModalMessage
-              isPending={isPending}
+              isPending={isSavingItems}
               responseMsg={responseMsg}
             ></ModalMessage>
           </>
