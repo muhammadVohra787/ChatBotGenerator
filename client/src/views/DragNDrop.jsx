@@ -15,7 +15,8 @@ import {
   IconButton,
   Modal,
   CircularProgress,
-  setRef,
+  Alert,
+  Typography,
 } from "@mui/material";
 import DynamicFeedIcon from "@mui/icons-material/DynamicFeed";
 import SmsIcon from "@mui/icons-material/Sms";
@@ -70,13 +71,6 @@ const DragNDrop = () => {
         allChats.findIndex((chat) => chat.chatname === chatname) !== -1;
       if (!chatname || chatname === "" || chatname === null || !itemExists) {
         navigate("/dashboard");
-      } else {
-        // getAllChatApi({
-        //   postData: { userId: authUserId },
-        //   url: "getallchats",
-        // }).then((res) => {
-        //   setAllChats(res.data.data);
-        // });
       }
       setNewChatAdded(true);
     }
@@ -110,7 +104,7 @@ const DragNDrop = () => {
     return <Component {...props} />;
   };
 
-  const [dataSet, setData] = useState([ ]);
+  const [dataSet, setData] = useState([]);
   useEffect(() => {
     console.log(dataSet);
   }, [dataSet]);
@@ -132,6 +126,7 @@ const DragNDrop = () => {
             type: saved.type,
             title: convertToComponent(saved.item, dataProps),
           };
+          finalSubmit();
           return updatedData;
         });
       } else {
@@ -307,7 +302,7 @@ const DragNDrop = () => {
   };
   useEffect(() => {
     var startIndex = -1;
-    
+
     getThisChatData({
       postData: { userId: authUserId, chatName: chatname },
       url: "getchatbyname",
@@ -317,20 +312,22 @@ const DragNDrop = () => {
       console.log("mappingList", mappingList);
       res.data.data.map((value) => {
         startIndex++;
-      
+
         const resultArr = {
           type: value.type,
           index: startIndex,
           mainLabel: value.mainlabel,
           mainQuestion: value.mainquestion,
-         };
-         if (value.options && value.options !== "false") {
-          resultArr.options = value.options.map(({ id, option, response, button }) => ({
-            id,
-            option,
-            response,
-            button,
-          }));
+        };
+        if (value.options && value.options !== "false") {
+          resultArr.options = value.options.map(
+            ({ id, option, response, button }) => ({
+              id,
+              option,
+              response,
+              button,
+            })
+          );
         }
         const dataProps = {
           handleResponse: handleResponse,
@@ -369,7 +366,6 @@ const DragNDrop = () => {
         maxWidth="lg"
         sx={{
           display: "flex",
-          filter: !isGettingChat ? "none" : "blur(2px)",
         }}
       >
         <Container
@@ -382,21 +378,43 @@ const DragNDrop = () => {
             flexGrow: 1,
           }}
         >
-          <Box component="form" noValidate onSubmit={finalSubmit}>
-            <DndContext
-              collisionDetection={closestCorners}
-              onDragEnd={handleDragEnd}
-              modifiers={[restrictToVerticalAxis]}
-            >
-              <FirstWrapper
-                tasks={dataSet}
-                onDelete={handleDeleteItem}
-                onClick={handleItemClick}
-              />
-            </DndContext>
-            <Button variant="contained" color="primary" fullWidth type="submit">
-              Save
-            </Button>
+          <Alert severity="warning" sx={{ mb: 2, mt: 2 }}>
+            Please makesure you save the chat after making any changes!
+          </Alert>
+          <Box
+            component="form"
+            noValidate
+            onSubmit={finalSubmit}
+            sx={{ filter: !isGettingChat ? "none" : "blur(2px)" }}
+          >
+            {dataSet.length > 0 ? (
+              <>
+                <DndContext
+                  collisionDetection={closestCorners}
+                  onDragEnd={handleDragEnd}
+                  modifiers={[restrictToVerticalAxis]}
+                >
+                  <FirstWrapper
+                    tasks={dataSet}
+                    onDelete={handleDeleteItem}
+                    onClick={handleItemClick}
+                  />
+                </DndContext>{" "}
+                <Button
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  type="submit"
+                  sx={{ mt: 3, mb: 3 }}
+                >
+                  Save
+                </Button>
+              </>
+            ) : (
+              <Typography variant="h5" color="primary" sx={{ pb: 50 }}>
+                Lets start by adding items from the left side of the screen
+              </Typography>
+            )}
           </Box>
         </Container>
         <Drawer

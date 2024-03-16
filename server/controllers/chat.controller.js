@@ -50,6 +50,8 @@ const addChatTable = async (req, res) => {
       res
         .status(201)
         .json({ message: "Chat Name creation was successful", type: true });
+    } else {
+      res.status(400).json({ message: "Name Already Exists", type: false });
     }
   } catch (err) {
     console.error("Error creating chatname:", err);
@@ -113,10 +115,10 @@ const deleteTheChatNames = async (req, res) => {
 
 const getChatItems = async (req, res) => {
   const { chatName, userId } = req.body;
-  
+
   try {
     const result = await Chat.getChatItemsByNameID(userId, chatName);
-    console.log(result)
+    console.log(result);
     res.status(200).json({ message: "Successful", type: true, data: result });
   } catch (err) {
     res.status(500).json({ message: "Item not found", type: false });

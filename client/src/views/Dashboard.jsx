@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {usePost } from "../api/user-authentication";
+import { usePost } from "../api/user-authentication";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import AddIcon from "@mui/icons-material/Add";
 import {
@@ -11,11 +11,13 @@ import {
   TextField,
   CircularProgress,
   IconButton,
+  Tooltip,
+  Alert,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
-
+import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
 const Dashboard = () => {
   const auth = useAuthUser();
   const authUserId = auth && auth.user_id;
@@ -23,6 +25,10 @@ const Dashboard = () => {
   const { isPending: isPending1, mutateAsync: mutateAsync1 } = usePost();
   const { isPending: isPending2, mutateAsync: mutateAsync2 } = usePost();
   const { isPending: isPending3, mutateAsync: mutateAsync3 } = usePost();
+  const [showError, setError] = useState({
+    show: false,
+    message: "",
+  });
   const [allChats, setAllChats] = useState([]);
   const [newChatAdded, setNewChatAdded] = useState(false);
   const [warningBox, setWarningBox] = useState({
@@ -47,7 +53,6 @@ const Dashboard = () => {
     }
   }, [authUserId]);
   useEffect(() => {
-
     mutateAsync1({
       postData: { userId: authUserId },
       url: "getallchats",
@@ -63,6 +68,18 @@ const Dashboard = () => {
         postData: { chatName: chatName.chatName, userId: authUserId },
         url: "addname",
       }).then((res) => {
+        if (!res.data.type) {
+          setError({
+            show: true,
+            message: res.data.message,
+          });
+          setTimeout(() => {
+            setError({
+              show: false,
+              message: "",
+            });
+          }, 2500);
+        }
         newChatAdded ? setNewChatAdded(false) : setNewChatAdded(true);
         setTimeout(() => {
           setOpen(false);
@@ -79,15 +96,17 @@ const Dashboard = () => {
     const { name, value } = e.target;
     console.log(chatName);
     var isValid = false;
-    var message = undefined;
+    var message = "";
     var chatLength = allChats.chatName && allChats.chatName.length;
+
     if (name === "chatName") {
-      if (
-        allChats.findIndex((chat) => chat.chatname === value) !== -1 &&
-        chatLength > 2
-      ) {
+      if (allChats.findIndex((chat) => chat.chatname === value) !== -1) {
         isValid = true;
         message = "You already have a chat with this name";
+      }
+      if (value.length < 5) {
+        isValid = true;
+        message = "Name Must Be Longer Than 5 letters/digits";
       }
 
       setChatName((prevState) => ({
@@ -108,7 +127,8 @@ const Dashboard = () => {
   };
   const handleEditChat = (index) => {
     const currItem = allChats[index].chatname;
-    navigate(`/dnd/${currItem}`);
+    window.open(`/dnd/${currItem}`, "_blank");
+    // navigate(`/dnd/${currItem}`);
   };
   const refreshWarning = () =>
     setWarningBox({
@@ -139,6 +159,7 @@ const Dashboard = () => {
         All Chats:
       </Typography>
       {isPending1 && <CircularProgress />}
+      {showError.show && <Alert severity="error">{showError.message}</Alert>}
       <br />
       <>
         {allChats === null ? (
@@ -164,32 +185,52 @@ const Dashboard = () => {
                   key={chat.id}
                 >
                   <div>
-                    <IconButton
-                      sx={{
-                        p: 0,
-                        pr: 1,
-                        pl: 1,
-                      }}
-                      onClick={() => {
-                        handleWarningDelete(index);
-                      }}
-                    >
-                      <CloseIcon />
-                    </IconButton>
+                    <Tooltip title="Delete">
+                      <IconButton
+                        sx={{
+                          p: 0,
+                          mr: 1,
+                          ml: 1,
+                        }}
+                        onClick={() => {
+                          handleWarningDelete(index);
+                        }}
+                      >
+                        <CloseIcon />
+                      </IconButton>
+                    </Tooltip>
                   </div>
                   <div>
-                    <IconButton
-                      sx={{
-                        p: 0,
-                        pr: 3,
-                        pl: 1,
-                      }}
-                      onClick={() => {
-                        handleEditChat(index);
-                      }}
-                    >
-                      <EditIcon />
-                    </IconButton>
+                    <Tooltip title="Edit">
+                      <IconButton
+                        sx={{
+                          p: 0,
+                          mr: 1,
+                          ml: 1,
+                        }}
+                        onClick={() => {
+                          handleEditChat(index);
+                        }}
+                      >
+                        <EditIcon />
+                      </IconButton>
+                    </Tooltip>
+                  </div>
+                  <div>
+                    <Tooltip title="Preview Chat">
+                      <IconButton
+                        sx={{
+                          p: 0,
+                          mr: 3,
+                          ml: 1,
+                        }}
+                        onClick={() => {
+                          handleEditChat(index);
+                        }}
+                      >
+                        <RemoveRedEyeOutlinedIcon />
+                      </IconButton>
+                    </Tooltip>
                   </div>
                   <Typography variant="body1">{chat.chatname}</Typography>
                 </Box>
