@@ -86,6 +86,17 @@ class Chat {
     }
   }
 
+  static async getChatOneByOne(chatName,userId,index){
+    const query =`SELECT * FROM CHATS WHERE CHATNAME=$1 AND USERID=$2 OFFSET $3 LIMIT 1;
+    `
+    try{
+      const res = await db.query(query,[chatName,userId,index])
+      return res
+    }catch(err){
+      console.log("couldnt get the item", err)
+      throw err
+    }
+  }
   // Delete chat name and associated chats by chat name and user ID
   static async deleteChatName(chatName, userId) {
     const queryRemovedChatName = `

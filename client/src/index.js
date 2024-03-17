@@ -16,22 +16,23 @@ const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
 root.render(
-  <React.StrictMode>
-    <LastLocationProvider>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider store={store}>
-          <BrowserRouter>
-            <ThemeProvider theme={theme}>
-              <Navbar />
-              <ShowLocation />
-              <App />
-              <Footer />
-            </ThemeProvider>
-          </BrowserRouter>
-        </AuthProvider>
-      </QueryClientProvider>
-    </LastLocationProvider>
-  </React.StrictMode>
+  // <React.StrictMode>
+  //I had to remove strictMode for chat library to work!
+  <LastLocationProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider store={store}>
+        <BrowserRouter>
+          <ThemeProvider theme={theme}>
+            <Navbar />
+            <ShowLocation />
+            <App />
+            <Footer />
+          </ThemeProvider>
+        </BrowserRouter>
+      </AuthProvider>
+    </QueryClientProvider>
+  </LastLocationProvider>
+  // </React.StrictMode>
 );
 
 reportWebVitals();

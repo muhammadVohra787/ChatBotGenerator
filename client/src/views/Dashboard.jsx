@@ -128,7 +128,10 @@ const Dashboard = () => {
   const handleEditChat = (index) => {
     const currItem = allChats[index].chatname;
     window.open(`/dnd/${currItem}`, "_blank");
-    // navigate(`/dnd/${currItem}`);
+  };
+  const handlePreviewChat = (index) => {
+    const currItem = allChats[index].chatname;
+    window.open(`/previewChat/${currItem}`, "_blank");
   };
   const refreshWarning = () =>
     setWarningBox({
@@ -225,7 +228,7 @@ const Dashboard = () => {
                           ml: 1,
                         }}
                         onClick={() => {
-                          handleEditChat(index);
+                          handlePreviewChat(index);
                         }}
                       >
                         <RemoveRedEyeOutlinedIcon />

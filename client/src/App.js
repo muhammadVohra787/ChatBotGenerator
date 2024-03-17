@@ -10,7 +10,7 @@ import ForgotPasswordPage from "./views/password/ForgotPasswordPage";
 import TokenVerify from "./components/userInput/TokenVerification";
 import SingleSelect from "./components/TypesOfInput/SingleSelect";
 import DragNDrop from "./views/DragNDrop";
-
+import { ChatPreview } from "./views/ChatPreview";
 import "./index.css";
 import { ChatPage } from "./views/Test";
 import TextMessage from "./components/TypesOfInput/TextMesage";
@@ -24,9 +24,7 @@ function App() {
       <Route path="/startchat" element={<SingleSelect />} />
       <Route
         path="/test"
-        element={
-          <SingleSelect maximized={true} handleResponse={handleResponse} />
-        }
+        element={<ChatPage/>}
       />
 
       <Route path="/" element={<Home />} />
@@ -42,6 +40,7 @@ function App() {
       <Route element={<PrivateRoutes />}>
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dnd/:chatname" element={<DragNDrop />} />
+        <Route path="/previewChat/:chatname" element={<ChatPreview />} />
         <Route element={<ChangePassword />} path="/changePass" exact />
       </Route>
       {/* Secure Routes Ends here*/}

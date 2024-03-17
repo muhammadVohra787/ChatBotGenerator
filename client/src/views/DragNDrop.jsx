@@ -33,13 +33,11 @@ import ModalMessage from "../components/modal/ModalMessage";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
-import useHeaders from "../components/headers/internal-label";
 const DragNDrop = () => {
   const { isPending: isSavingItems, mutateAsync: saveChatApi } = usePost();
   const { isPending: isGettingChat, mutateAsync: getAllChatApi } = usePost();
   const { isPending: isFetchingChatData, mutateAsync: getThisChatData } =
     usePost();
-  const { boxTitleArea, setTitleArea } = useHeaders();
   const [allChats, setAllChats] = useState([]);
   const [newChatAdded, setNewChatAdded] = useState(false);
   const auth = useAuthUser();
@@ -105,9 +103,7 @@ const DragNDrop = () => {
   };
 
   const [dataSet, setData] = useState([]);
-  useEffect(() => {
-    console.log(dataSet);
-  }, [dataSet]);
+
   useEffect(() => {
     if (saved.data) {
       const dataProps = {
