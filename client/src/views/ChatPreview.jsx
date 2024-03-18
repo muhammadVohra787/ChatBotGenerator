@@ -7,12 +7,13 @@ import useAuthUser from "react-auth-kit/hooks/useAuthUser";
 import { usePost } from "../api/user-authentication";
 import TextMessage from "../components/TypesOfInput/TextMesage";
 export const ChatPreview = () => {
+  const [steps, setSteps] = useState([]);
   const auth = useAuthUser();
   const authUserId = auth && auth.user_id;
   const navigate = useNavigate();
   const { chatname } = useParams();
-  const [arr, setArr] = useState(null);
-  const [currentIndex, setCurrIndex] = useState(0);
+  const arr = [];
+  const [dataReceived, setDataStatus] = useState(false);
   const {
     isPending: isFetchingChatData,
     mutateAsync: getThisChatData,
@@ -20,60 +21,38 @@ export const ChatPreview = () => {
   const [dataSet, setData] = useState([]);
   let basicSteps = [
     {
-      id: "1",
-      message: "Hello my friend, please tell me your name?",
-      trigger: "2",
+      id: "Learn More",
+      message: "Interested in Learning more about our services?",
+      trigger: "Hello!",
     },
     {
-      id: "2",
-      user: true,
-      trigger: "3",
+      id: "Hello!",
+      message:
+        "Hello! Welcome to XYZ Company's virtual assistant. How can I assist you today?",
+      trigger: "Let me get the list for you res",
     },
+
     {
-      id: "3",
-      message: "Which season do you like the most?",
-      trigger: "4",
-    },
-    {
-      id: "4",
-      component: <TextMessage />,
-      waitAction: true,
-      trigger: "5",
-    },
-    {
-      id: "5",
-      message: "That's Good!!",
-      end: true,
+      id: "Let me get the list for you res",
+      message: "Let me get the list for you",
+      trigger: false,
     },
   ];
   useEffect(() => {
     var startIndex = -1;
 
     getThisChatData({
-      postData: { userId: authUserId, chatName: chatname, index: currentIndex },
+      postData: { userId: authUserId, chatName: chatname },
       url: "getitembyindex",
     }).then((res) => {
-      console.log(res.data.data.rows);
-      setArr(res.data.data.rows);
+      console.log(res.data);
+      if (res.data.type) {
+        setSteps((prevData) => [...prevData, ...res.data.data]);
+        console.log("RESSS", res.data);
+        setDataStatus(true);
+      }
     });
   }, []);
-  return <ChatBot
-  steps={[
-    {
-      id: '1',
-      message: 'What is your name?',
-      trigger: '2',
-    },
-    {
-      id: '2',
-      user: true,
-      trigger: '3',
-    },
-    {
-      id: '3',
-      message: 'Hi {previousValue}, nice to meet you!',
-      end: true,
-    },
-  ]}
-/>;
+  useEffect(() => {}, [steps]);
+  return <>{steps.length > 0 && <ChatBot steps={steps} />}</>;
 };

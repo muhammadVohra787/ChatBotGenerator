@@ -98,7 +98,7 @@ const deleteTheChatNames = async (req, res) => {
   console.log(req.body);
   try {
     const result = await Chat.deleteChatName(chatName, userId);
-  
+
     res
       .status(200)
       .json({ message: "Successful", type: true, data: "Chat Deleted" });
@@ -125,15 +125,95 @@ const getChatItems = async (req, res) => {
   }
 };
 
-const getChatOnebyOneController = async (req,res)=>{
-  const {chatName,userId,index} = req.body
+const getChatOnebyOneController = async (req, res) => {
+  const { chatName, userId } = req.body;
+  const finalArr = [];
+  let index = 0;
   try {
-    const result = await Chat.getChatOneByOne(chatName,userId,index);
-    res.status(200).json({ message: "Successful", type: true, data: result });
+    const result = await Chat.getChatOneByOne(chatName, userId);
+    var checkLastIndex = 0;
+
+    const lastIndex = result.length;
+    result.map((value) => {
+      checkLastIndex++;
+
+      if (value.type == "TextQuestion") {
+        index++;
+        console.log(index, value.mainlabel, value.mainquestion);
+        const ObjectForMessage = {
+          id: value.mainlabel,
+          message: value.mainquestion,
+          trigger: result[index - 1]
+            ? result[index - 1].mainlabel + "res"
+            : false,
+        };
+        const ObjectForInput = {
+          id: result[index - 1] ? result[index - 1].mainlabel + "res" : false,
+          user: true,
+          trigger: result[index] ? result[index].mainlabel : index + 1,
+        };
+        console.log(ObjectForInput);
+        finalArr.push(ObjectForMessage);
+        finalArr.push(ObjectForInput);
+      } else if (value.type == "SingleSelect") {
+        index++;
+        const ObjectForMessage = {
+          id: value.mainlabel,
+          message: value.mainquestion,
+          trigger: result[index]
+            ? result[index].mainlabel.toLowerCase().replace(/ /g, "_") +
+              " option"
+            : false,
+        };
+        finalArr.push(ObjectForMessage);
+        var objectList = [];
+        var optionIndex = 0;
+        var optionLength = value.options.length;
+        console.log(optionLength);
+        value.options.map((options) => {
+          objectList.push({
+            value: index,
+            label: options.option,
+            trigger: options.response.toLowerCase().replace(/ /g, "_") + " res",
+          });
+          var ResponseObject = {
+            id: options.response.toLowerCase().replace(/ /g, "_") + " res",
+            message: options.response,
+            trigger: result[index].mainlabel,
+          };
+          finalArr.push(ResponseObject);
+        });
+        OptionObject = {
+          id: result[index]
+            ? result[index].mainlabel.toLowerCase().replace(/ /g, "_") +
+              " option"
+            : false,
+          options: objectList,
+        };
+        finalArr.push(OptionObject);
+      } else if (value.type == "TextMessage") {
+        index++;
+        const ObjectForMessage = {
+          id: value.mainlabel,
+          message: value.mainquestion,
+          trigger: result[index] ? result[index].mainlabel : false,
+        };
+        finalArr.push(ObjectForMessage);
+      }
+      if (lastIndex === checkLastIndex) {
+        const ObjectForMessage = {
+          id: index + 1,
+          message: "End of Chat",
+          trigger: false,
+        };
+        finalArr.push(ObjectForMessage);
+      }
+    });
+    res.status(200).json({ message: "Successful", type: true, data: finalArr });
   } catch (err) {
     res.status(500).json({ message: "Item not found", type: false });
   }
-}
+};
 module.exports = {
   createChat,
   addChatTable,
@@ -141,5 +221,5 @@ module.exports = {
   getAllChatsByUser,
   deleteTheChatNames,
   getChatItems,
-  getChatOnebyOneController
+  getChatOnebyOneController,
 };

@@ -36,8 +36,10 @@ import { useNavigate } from "react-router-dom";
 const DragNDrop = () => {
   const { isPending: isSavingItems, mutateAsync: saveChatApi } = usePost();
   const { isPending: isGettingChat, mutateAsync: getAllChatApi } = usePost();
-  const { isPending: isFetchingChatData, mutateAsync: getThisChatData } =
-    usePost();
+  const {
+    isPending: isFetchingChatData,
+    mutateAsync: getThisChatData,
+  } = usePost();
   const [allChats, setAllChats] = useState([]);
   const [newChatAdded, setNewChatAdded] = useState(false);
   const auth = useAuthUser();
@@ -103,7 +105,11 @@ const DragNDrop = () => {
   };
 
   const [dataSet, setData] = useState([]);
-
+  // window.addEventListener('beforeunload', (e) => {
+  //   e.preventDefault();
+  //   e.returnValue = '';
+  //   return 'Are you sure you want to leave this page?';
+  // });
   useEffect(() => {
     if (saved.data) {
       const dataProps = {
@@ -122,7 +128,7 @@ const DragNDrop = () => {
             type: saved.type,
             title: convertToComponent(saved.item, dataProps),
           };
-          finalSubmit();
+
           return updatedData;
         });
       } else {

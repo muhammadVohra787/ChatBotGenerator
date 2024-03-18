@@ -30,7 +30,16 @@ db.query(createChatName)
   .catch((error) => console.error("Error creating Chat Names table:", error));
 
 class Chat {
-  constructor(userId, chatName, type, mainLabel, mainQuestion, endChat, options, userResponse) {
+  constructor(
+    userId,
+    chatName,
+    type,
+    mainLabel,
+    mainQuestion,
+    endChat,
+    options,
+    userResponse
+  ) {
     this.chatName = chatName;
     this.type = type;
     this.mainLabel = mainLabel;
@@ -42,13 +51,31 @@ class Chat {
   }
 
   // Create a chat
-  static async create(userId, chatName, type, mainLabel, mainQuestion, endChat, options, userResponse) {
+  static async create(
+    userId,
+    chatName,
+    type,
+    mainLabel,
+    mainQuestion,
+    endChat,
+    options,
+    userResponse
+  ) {
     const query = `
       INSERT INTO chats (userId, chatName, type, mainLabel, mainQuestion, endChat, options, userResponse)
       VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
       RETURNING *;
     `;
-    const values = [userId, chatName, type, mainLabel, mainQuestion, endChat, JSON.stringify(options), userResponse];
+    const values = [
+      userId,
+      chatName,
+      type,
+      mainLabel,
+      mainQuestion,
+      endChat,
+      JSON.stringify(options),
+      userResponse,
+    ];
     try {
       const result = await db.query(query, values);
       return result.rows[0];
@@ -81,20 +108,24 @@ class Chat {
       await db.query(query, [chatName, userId]);
       return "Rows deleted";
     } catch (error) {
-      console.error("Error removing all chats by chat name and user ID:", error);
+      console.error(
+        "Error removing all chats by chat name and user ID:",
+        error
+      );
       throw error;
     }
   }
 
-  static async getChatOneByOne(chatName,userId,index){
-    const query =`SELECT * FROM CHATS WHERE CHATNAME=$1 AND USERID=$2 OFFSET $3 LIMIT 1;
-    `
-    try{
-      const res = await db.query(query,[chatName,userId,index])
-      return res
-    }catch(err){
-      console.log("couldnt get the item", err)
-      throw err
+  static async getChatOneByOne(chatName, userId) {
+    const query = `SELECT * FROM CHATS WHERE CHATNAME=$1 AND USERID=$2;
+    `;
+    try {
+      const res = await db.query(query, [chatName, userId]);
+      console.log("res recieved");
+      return res.rows;
+    } catch (err) {
+      console.log("couldnt get the item", err);
+      throw err;
     }
   }
   // Delete chat name and associated chats by chat name and user ID
@@ -144,7 +175,10 @@ class Chat {
       const result = await db.query(query, [chatName, userId]);
       return result.rows;
     } catch (error) {
-      console.error("Error getting chat items by chat name and user ID:", error);
+      console.error(
+        "Error getting chat items by chat name and user ID:",
+        error
+      );
       throw error;
     }
   }

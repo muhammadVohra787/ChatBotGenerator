@@ -11,7 +11,6 @@ import { theme } from "./assets/theme";
 import AuthProvider from "react-auth-kit";
 import { store } from "./assets/store";
 import { LastLocationProvider } from "./PrivateRoutes";
-import ShowLocation from "./components/ShowLocation";
 const queryClient = new QueryClient();
 const root = ReactDOM.createRoot(document.getElementById("root"));
 
@@ -24,7 +23,6 @@ root.render(
         <BrowserRouter>
           <ThemeProvider theme={theme}>
             <Navbar />
-            <ShowLocation />
             <App />
             <Footer />
           </ThemeProvider>
