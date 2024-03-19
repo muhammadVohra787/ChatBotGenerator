@@ -9,12 +9,11 @@ import {
   Container,
   Tooltip,
   IconButton,
-  Typography
+  Typography,
 } from "@mui/material";
 import TipsAndUpdatesIcon from "@mui/icons-material/TipsAndUpdates";
 import useHeaders from "../headers/internal-label";
 import useTitleAreaEffect from "../headers/useEffectLabel";
-
 
 const TextQuestion = ({ text, handleResponse, index, data, maximized }) => {
   var resultArr = [];
@@ -57,7 +56,7 @@ const TextQuestion = ({ text, handleResponse, index, data, maximized }) => {
 
     if (labelValidation && questionValidation && endChatValidation) {
       resultArr = {
-        type:'TextQuestion',
+        type: "TextQuestion",
         index: index,
         mainLabel: boxTitleArea.fullLabel,
         mainQuestion: boxTitleArea.fullQuestion,
@@ -71,7 +70,7 @@ const TextQuestion = ({ text, handleResponse, index, data, maximized }) => {
 
   return (
     <Container
-    maxWidth={false}
+      maxWidth={false}
       sx={{
         bgcolor: "background.paper",
         boxShadow: "-1px 0px 1px 0px #aaa",
@@ -79,7 +78,7 @@ const TextQuestion = ({ text, handleResponse, index, data, maximized }) => {
       }}
     >
       <MinimizeClose
-        text={text + ": Text Question- " + boxTitleArea.fullLabel}
+        text={index + 1 + ": Text Question- " + boxTitleArea.fullLabel}
         maximized={maximized}
       />
       <br />
@@ -170,7 +169,8 @@ const TextQuestion = ({ text, handleResponse, index, data, maximized }) => {
           >
             Set Test Options
           </Button>
-        </>) : (
+        </>
+      ) : (
         <>
           {data && (
             <Box>

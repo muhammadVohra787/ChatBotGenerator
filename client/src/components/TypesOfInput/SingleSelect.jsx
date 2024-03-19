@@ -131,6 +131,7 @@ const SingleSelect = ({ text, handleResponse, index, data, maximized }) => {
         index: index,
         mainLabel: boxTitleArea.fullLabel,
         mainQuestion: boxTitleArea.fullQuestion,
+        endChat: boxTitleArea.endChat,
         options: options.map(({ id, option, response, button }) => ({
           id,
           option,
@@ -151,7 +152,7 @@ const SingleSelect = ({ text, handleResponse, index, data, maximized }) => {
         bgcolor: "background.paper",
         boxShadow: "-1px 0px 1px 0px #aaa",
         p: 1,
-        mb: maximized ? 20: '',
+        mb: maximized ? 20 : "",
       }}
     >
       <MinimizeClose

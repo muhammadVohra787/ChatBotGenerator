@@ -139,10 +139,9 @@ const getChatOnebyOneController = async (req, res) => {
 
       if (value.type == "TextQuestion") {
         index++;
-        console.log(index, value.mainlabel, value.mainquestion);
         const ObjectForMessage = {
-          id: value.mainlabel,
-          message: value.mainquestion,
+          id: value.mainlabel ? value.mainlabel : false,
+          message: value.mainquestion ? value.mainquestion : false,
           trigger: result[index - 1]
             ? result[index - 1].mainlabel + "res"
             : false,
@@ -152,14 +151,13 @@ const getChatOnebyOneController = async (req, res) => {
           user: true,
           trigger: result[index] ? result[index].mainlabel : index + 1,
         };
-        console.log(ObjectForInput);
         finalArr.push(ObjectForMessage);
         finalArr.push(ObjectForInput);
       } else if (value.type == "SingleSelect") {
         index++;
         const ObjectForMessage = {
-          id: value.mainlabel,
-          message: value.mainquestion,
+          id: value.mainlabel ? value.mainlabel : false,
+          message: value.mainquestion ? value.mainquestion : false,
           trigger: result[index]
             ? result[index].mainlabel.toLowerCase().replace(/ /g, "_") +
               " option"
@@ -169,18 +167,35 @@ const getChatOnebyOneController = async (req, res) => {
         var objectList = [];
         var optionIndex = 0;
         var optionLength = value.options.length;
-        console.log(optionLength);
         value.options.map((options) => {
-          objectList.push({
-            value: index,
-            label: options.option,
-            trigger: options.response.toLowerCase().replace(/ /g, "_") + " res",
-          });
-          var ResponseObject = {
-            id: options.response.toLowerCase().replace(/ /g, "_") + " res",
-            message: options.response,
-            trigger: result[index].mainlabel,
-          };
+          try {
+            objectList.push({
+              value: index + options.option,
+              label: options.option,
+              trigger:
+              options.response && options.response !== "ready"
+                  ? options.response.toLowerCase().replace(/ /g, "_") + " res"
+                  : value.endchat,
+            });
+          } catch (err) {
+            console.log("objectList", err);
+          }
+          try {
+            var ResponseObject = {
+              id:
+              options.response && options.response !== "ready"
+                  ? options.response.toLowerCase().replace(/ /g, "_") + " res"
+                  : value.endchat,
+              message:
+                options.response && options.response !== "ready"
+                  ? options.response
+                  : value.endchat,
+              trigger: result[index] ? result[index].mainlabel : false,
+            };
+            console.log(result[index])
+          } catch (err) {
+            console.log("ResponseObject", err);
+          }
           finalArr.push(ResponseObject);
         });
         OptionObject = {
@@ -194,8 +209,8 @@ const getChatOnebyOneController = async (req, res) => {
       } else if (value.type == "TextMessage") {
         index++;
         const ObjectForMessage = {
-          id: value.mainlabel,
-          message: value.mainquestion,
+          id: value.mainlabel ? value.mainlabel : false,
+          message: value.mainquestion ? value.mainquestion : false,
           trigger: result[index] ? result[index].mainlabel : false,
         };
         finalArr.push(ObjectForMessage);
@@ -211,7 +226,9 @@ const getChatOnebyOneController = async (req, res) => {
     });
     res.status(200).json({ message: "Successful", type: true, data: finalArr });
   } catch (err) {
-    res.status(500).json({ message: "Item not found", type: false });
+    res
+      .status(500)
+      .json({ message: "Item not found", type: false, error: finalArr });
   }
 };
 module.exports = {

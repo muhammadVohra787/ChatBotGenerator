@@ -61,9 +61,9 @@ const DragNDrop = () => {
       postData: { userId: authUserId },
       url: "getallchats",
     }).then((res) => {
+      console.log("res", res);
       setAllChats(res.data.data);
     });
-    console.log("1");
   }, []);
   useEffect(() => {
     if (allChats.length > 0) {
@@ -124,7 +124,7 @@ const DragNDrop = () => {
         setData((prevData) => {
           const updatedData = [...prevData];
           updatedData[existingItem.title.props.data.index] = {
-            id: saved.id + 1,
+            id: saved.id,
             type: saved.type,
             title: convertToComponent(saved.item, dataProps),
           };
@@ -141,12 +141,17 @@ const DragNDrop = () => {
           },
         ]);
       }
+      console.log(dataSet);
       resetSaved();
     }
   }, [saved]);
-
+  useEffect(() => {
+    console.log(dataSet);
+  }, [dataSet]);
+  useEffect(() => {
+    console.log(saved);
+  }, [saved]);
   tasksLength = dataSet.length;
-
   const [allItems, setItems] = useState([
     {
       id: tasksLength + 1,
@@ -190,21 +195,22 @@ const DragNDrop = () => {
       saved: false,
     });
   const handleItemClick = (index) => {
+    console.log(index);
     const currentItemProp = { maximized: true, index: index };
     var currentItem = dataSet[index];
-    console.log(currentItem.index);
-    console.log(currentItem.title.props.data.index);
+
     setSaved({
-      id: currentItem.title.props.data.index,
+      id: index,
       type: currentItem.type,
       item: convertToComponent(currentItem.title, currentItemProp),
       saved: true,
     });
   };
-
   const getTaskPos = (id) => dataSet.findIndex((task) => task.id === id);
 
   const handleDragEnd = (e) => {
+    console.log("active", e.active);
+    console.log("over", e.over);
     const { active, over } = e;
     if (active.id === null || over.id === null) {
       return;
@@ -218,8 +224,12 @@ const DragNDrop = () => {
   };
 
   const handleDeleteItem = (idToRemove) => {
-    setData((prevData) => prevData.filter((task) => task.id !== idToRemove));
+    console.log("removing", idToRemove);
+    const dataCopy = [...dataSet];
+    dataCopy.splice(idToRemove, 1);
+    setData(dataCopy);
   };
+
   const handleGoBack = () => {
     resetSaved();
   };
@@ -241,7 +251,7 @@ const DragNDrop = () => {
     };
 
     setSaved({
-      id: (dataSet.length + 1).toString(),
+      id: dataSet.length,
       index: dataSet.length,
       type: type,
       item: convertToComponent(title, dataProp),
@@ -303,7 +313,7 @@ const DragNDrop = () => {
     });
   };
   useEffect(() => {
-    var startIndex = -1;
+    var startIndex = 0;
 
     getThisChatData({
       postData: { userId: authUserId, chatName: chatname },
@@ -402,21 +412,21 @@ const DragNDrop = () => {
                     onClick={handleItemClick}
                   />
                 </DndContext>{" "}
-                <Button
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  type="submit"
-                  sx={{ mt: 3, mb: 3 }}
-                >
-                  Save
-                </Button>
               </>
             ) : (
               <Typography variant="h5" color="primary" sx={{ pb: 50 }}>
                 Lets start by adding items from the left side of the screen
               </Typography>
             )}
+            <Button
+              variant="contained"
+              color="primary"
+              fullWidth
+              type="submit"
+              sx={{ mt: 3, mb: 3 }}
+            >
+              Save
+            </Button>
           </Box>
         </Container>
         <Drawer

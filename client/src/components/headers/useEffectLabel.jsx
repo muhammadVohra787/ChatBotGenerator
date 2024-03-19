@@ -12,6 +12,7 @@ const useTitleAreaEffect = (
       setTitleArea((prevTitleArea) => ({
         ...prevTitleArea,
         index: data.index !== undefined ? data.index : index,
+        text:data.index !== undefined ? data.index +1: index+1,
         fullLabel:
           data.mainLabel !== undefined
             ? data.mainLabel
@@ -22,7 +23,7 @@ const useTitleAreaEffect = (
             : prevTitleArea.fullQuestion,
         endChat:
           data.endChat !== undefined ? data.endChat : prevTitleArea.endChat,
-        endChatSingle:
+          endChatSingle:
           data.endChatSingle !== undefined
             ? data.endChatSingle
             : prevTitleArea.endChatSingle,
