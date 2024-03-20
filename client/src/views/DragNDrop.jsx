@@ -52,7 +52,6 @@ const DragNDrop = () => {
     setOpen,
     handleMsgBoxClose,
   } = useModal();
-  var tasksLength = 0;
   const navigate = useNavigate();
   const { chatname } = useParams();
   const [fetchedData, setFetchedData] = useState([]);
@@ -116,14 +115,13 @@ const DragNDrop = () => {
         data: saved.data,
         maximized: false,
       };
-
-      const existingItem = dataSet[saved.id];
-      console.log(existingItem);
+      console.log("ssxxx", saved.item.props.index);
+      const existingItem = dataSet[saved.item.props.index];
       if (existingItem) {
         console.log("found saved", existingItem.title.props);
         setData((prevData) => {
           const updatedData = [...prevData];
-          updatedData[existingItem.title.props.data.index] = {
+          updatedData[saved.item.props.index] = {
             id: saved.id,
             type: saved.type,
             title: convertToComponent(saved.item, dataProps),
@@ -148,10 +146,11 @@ const DragNDrop = () => {
   useEffect(() => {
     console.log(dataSet);
   }, [dataSet]);
+
   useEffect(() => {
     console.log(saved);
   }, [saved]);
-  tasksLength = dataSet.length;
+  var tasksLength = dataSet.length;
   const [allItems, setItems] = useState([
     {
       id: tasksLength + 1,
@@ -187,6 +186,9 @@ const DragNDrop = () => {
       ),
     },
   ]);
+  useEffect(() => {
+    console.log(allItems);
+  }, [allItems]);
   const resetSaved = () =>
     setSaved({
       id: "",
@@ -195,12 +197,17 @@ const DragNDrop = () => {
       saved: false,
     });
   const handleItemClick = (index) => {
-    console.log(index);
-    const currentItemProp = { maximized: true, index: index };
-    var currentItem = dataSet[index];
+    console.log("Clicked,", index);
 
+    var currentItem = dataSet[index];
+    const currentItemProp = {
+      maximized: true,
+      index: index,
+    };
+    console.log("prop", currentItemProp);
+    console.log("Clicckedd!!! ", currentItem);
     setSaved({
-      id: index,
+      id: currentItem.title.props.index,
       type: currentItem.type,
       item: convertToComponent(currentItem.title, currentItemProp),
       saved: true,
@@ -242,17 +249,19 @@ const DragNDrop = () => {
     });
   };
 
-  const handleAddItem = (title, type) => {
+  const handleAddItem = (title, type, id) => {
+    console.log("title", title);
+    var indexToWorkWith = dataSet.length;
     const dataProp = {
       handleResponse: handleResponse,
-      index: dataSet.length,
-      text: (dataSet.length + 1).toString(),
+      index: indexToWorkWith,
+      text: indexToWorkWith.toString(),
       maximized: true,
     };
 
     setSaved({
-      id: dataSet.length,
-      index: dataSet.length,
+      id: indexToWorkWith + 1,
+      index: indexToWorkWith,
       type: type,
       item: convertToComponent(title, dataProp),
       saved: true,
@@ -267,7 +276,11 @@ const DragNDrop = () => {
               <ListItemText
                 primary={text.thumb}
                 onClick={() => {
-                  handleAddItem(text.title, text.type);
+                  if (!isGettingChat) {
+                    handleAddItem(text.title, text.type, text.id);
+                  } else {
+                    resetSaved();
+                  }
                 }}
               />
             </ListItem>
@@ -330,6 +343,8 @@ const DragNDrop = () => {
           index: startIndex,
           mainLabel: value.mainlabel,
           mainQuestion: value.mainquestion,
+          endChat: value.endchat||value.endchatsingle,
+          endChatSingle: value.endchatsingle || value.endchat
         };
         if (value.options && value.options !== "false") {
           resultArr.options = value.options.map(
@@ -378,6 +393,7 @@ const DragNDrop = () => {
         maxWidth="lg"
         sx={{
           display: "flex",
+          mb: "20px",
         }}
       >
         <Container
@@ -385,12 +401,10 @@ const DragNDrop = () => {
           sx={{
             bgcolor: "background.paper",
             boxShadow: 3,
-            overflowY: "auto",
-            maxHeight: "calc(100vh - 64px)",
             flexGrow: 1,
           }}
         >
-          <Alert severity="warning" sx={{ mb: 2, mt: 2 }}>
+          <Alert severity="warning" sx={{ mb: 2, mt: 4 }}>
             Please makesure you save the chat after making any changes!
           </Alert>
           <Box

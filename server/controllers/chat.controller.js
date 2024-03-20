@@ -18,6 +18,7 @@ const createChat = async (req, res) => {
       const mainLabel = element.mainLabel;
       const mainQuestion = element.mainQuestion;
       const endChat = element.endChat ? element.endChat : "";
+
       const response = element.response ? element.response : "";
       await Chat.create(
         userId,
@@ -164,26 +165,26 @@ const getChatOnebyOneController = async (req, res) => {
             : false,
         };
         finalArr.push(ObjectForMessage);
+
         var objectList = [];
-        var optionIndex = 0;
-        var optionLength = value.options.length;
         value.options.map((options) => {
           try {
             objectList.push({
               value: index + options.option,
               label: options.option,
               trigger:
-              options.response && options.response !== "ready"
+                options.response && options.response !== "ready"
                   ? options.response.toLowerCase().replace(/ /g, "_") + " res"
                   : value.endchat,
             });
           } catch (err) {
             console.log("objectList", err);
           }
+
           try {
             var ResponseObject = {
               id:
-              options.response && options.response !== "ready"
+                options.response && options.response !== "ready"
                   ? options.response.toLowerCase().replace(/ /g, "_") + " res"
                   : value.endchat,
               message:
@@ -193,10 +194,13 @@ const getChatOnebyOneController = async (req, res) => {
               trigger: result[index] ? result[index].mainlabel : false,
             };
             console.log(result[index])
+            console.log('*****\n')
+            console.log(result[index-1])
+            finalArr.push(ResponseObject);
           } catch (err) {
             console.log("ResponseObject", err);
           }
-          finalArr.push(ResponseObject);
+          
         });
         OptionObject = {
           id: result[index]

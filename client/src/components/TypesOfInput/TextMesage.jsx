@@ -59,7 +59,7 @@ const TextMessage = ({ text, handleResponse, index, data, maximized }) => {
       }}
     >
       <MinimizeClose
-        text={text + ": Text Message- " + boxTitleArea.fullLabel}
+        text={index+1 + ": Text Message- " + boxTitleArea.fullLabel}
         maximized={maximized}
       />
       <br />

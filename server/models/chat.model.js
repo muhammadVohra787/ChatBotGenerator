@@ -76,6 +76,7 @@ class Chat {
       JSON.stringify(options),
       userResponse,
     ];
+    console.log(values)
     try {
       const result = await db.query(query, values);
       return result.rows[0];
