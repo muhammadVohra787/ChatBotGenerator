@@ -38,7 +38,7 @@ const Navbar = () => {
   };
 
   return (
-    <Box sx={{ mb: "4%" }}>
+    <Box sx={{ mb: "70px" }}>
       <AppBar position="fixed" color="default">
         <Toolbar>
           <Typography variant="h6" sx={{ flexGrow: 0.5 }}>

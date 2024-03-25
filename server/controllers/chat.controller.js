@@ -145,7 +145,7 @@ const getChatOnebyOneController = async (req, res) => {
           message: value.mainquestion ? value.mainquestion : false,
           trigger: result[index - 1]
             ? result[index - 1].mainlabel + "res"
-            : false,
+            : index + 1,
         };
         const ObjectForInput = {
           id: result[index - 1] ? result[index - 1].mainlabel + "res" : false,
@@ -156,15 +156,18 @@ const getChatOnebyOneController = async (req, res) => {
         finalArr.push(ObjectForInput);
       } else if (value.type == "SingleSelect") {
         index++;
-        const ObjectForMessage = {
-          id: value.mainlabel ? value.mainlabel : false,
-          message: value.mainquestion ? value.mainquestion : false,
-          trigger: result[index]
-            ? result[index].mainlabel.toLowerCase().replace(/ /g, "_") +
-              " option"
-            : false,
-        };
-        finalArr.push(ObjectForMessage);
+        try {
+          const ObjectForMessage = {
+            id: value.mainlabel ? value.mainlabel : false,
+            message: value.mainquestion ? value.mainquestion : false,
+            trigger: value.mainlabel
+              ? value.mainlabel.toLowerCase().replace(/ /g, "_") + " option"
+              : false,
+          };
+          finalArr.push(ObjectForMessage);
+        } catch (err) {
+          console.log("object for message", err);
+        }
 
         var objectList = [];
         value.options.map((options) => {
@@ -191,31 +194,30 @@ const getChatOnebyOneController = async (req, res) => {
                 options.response && options.response !== "ready"
                   ? options.response
                   : value.endchat,
-              trigger: result[index] ? result[index].mainlabel : false,
+              trigger: result[index] ? result[index].mainlabel : index + 1,
             };
-            console.log(result[index])
-            console.log('*****\n')
-            console.log(result[index-1])
             finalArr.push(ResponseObject);
           } catch (err) {
             console.log("ResponseObject", err);
           }
-          
         });
-        OptionObject = {
-          id: result[index]
-            ? result[index].mainlabel.toLowerCase().replace(/ /g, "_") +
-              " option"
-            : false,
-          options: objectList,
-        };
-        finalArr.push(OptionObject);
+        try {
+          OptionObject = {
+            id: value.mainlabel
+              ? value.mainlabel.toLowerCase().replace(/ /g, "_") + " option"
+              : false,
+            options: objectList,
+          };
+          finalArr.push(OptionObject);
+        } catch (err) {
+          console.log("optionObject", err);
+        }
       } else if (value.type == "TextMessage") {
         index++;
         const ObjectForMessage = {
           id: value.mainlabel ? value.mainlabel : false,
           message: value.mainquestion ? value.mainquestion : false,
-          trigger: result[index] ? result[index].mainlabel : false,
+          trigger: result[index] ? result[index].mainlabel : index + 1,
         };
         finalArr.push(ObjectForMessage);
       }
