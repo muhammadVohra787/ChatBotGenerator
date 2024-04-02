@@ -9,31 +9,31 @@ const Footer = () => {
   const theme = useTheme();
 
   return (
-    <AppBar
-      position="fixed"
-      color="default"
-      sx={{
-        mt: 3,
-        top: "auto",
-        bottom: 0,
-        boxShadow: `0px 0px 10px gray`,
-
-        width: "100%",
-      }}
-    >
-      <Toolbar>
-        <Box sx={{ flexGrow: 1 }}>
-          <Typography variant="body1" color="primary">
-            © 2023 MV Auth, All Rights Reserved.
-          </Typography>
-        </Box>
-        <Box sx={{ display: "flex", gap: "16px" }}>
-          <TwitterIcon sx={{ color: theme.palette.primary.main }} />
-          <InstagramIcon sx={{ color: theme.palette.primary.main }} />
-          <FacebookIcon sx={{ color: theme.palette.primary.main }} />
-        </Box>
-      </Toolbar>
-    </AppBar>
+    <Box sx={{ mt: "120px" }}>
+      <AppBar
+        position="fixed"
+        color="default"
+        sx={{
+          top: "auto",
+          bottom: 0,
+          boxShadow: `0px 0px 10px gray`,
+          width: "100%",
+        }}
+      >
+        <Toolbar>
+          <Box sx={{ flexGrow: 1 }}>
+            <Typography variant="body1" color="primary">
+              © 2023 MV Auth, All Rights Reserved.
+            </Typography>
+          </Box>
+          <Box sx={{ display: "flex", gap: "16px" }}>
+            <TwitterIcon sx={{ color: theme.palette.primary.main }} />
+            <InstagramIcon sx={{ color: theme.palette.primary.main }} />
+            <FacebookIcon sx={{ color: theme.palette.primary.main }} />
+          </Box>
+        </Toolbar>
+      </AppBar>
+    </Box>
   );
 };
 

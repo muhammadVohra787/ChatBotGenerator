@@ -18,6 +18,7 @@ import { useNavigate } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
 import CloseIcon from "@mui/icons-material/Close";
 import RemoveRedEyeOutlinedIcon from "@mui/icons-material/RemoveRedEyeOutlined";
+import { ChatPreview } from "../components/ChatUi/ChatPreview";
 const Dashboard = () => {
   const auth = useAuthUser();
   const authUserId = auth && auth.user_id;
@@ -25,6 +26,7 @@ const Dashboard = () => {
   const { isPending: isPending1, mutateAsync: mutateAsync1 } = usePost();
   const { isPending: isPending2, mutateAsync: mutateAsync2 } = usePost();
   const { isPending: isPending3, mutateAsync: mutateAsync3 } = usePost();
+  const [previewItem, setPreviewItem] = useState(null);
   const [showError, setError] = useState({
     show: false,
     message: "",
@@ -127,11 +129,13 @@ const Dashboard = () => {
   };
   const handleEditChat = (index) => {
     const currItem = allChats[index].chatname;
+
     window.open(`/dnd/${currItem}`, "_blank");
   };
   const handlePreviewChat = (index) => {
     const currItem = allChats[index].chatname;
-    window.open(`/previewChat/${currItem}`, "_blank");
+    setPreviewItem({});
+    setPreviewItem({ chatname: currItem, userId: authUserId, preview: true });
   };
   const refreshWarning = () =>
     setWarningBox({
@@ -344,6 +348,13 @@ const Dashboard = () => {
           </Box>
         </>
       </Modal>
+      {previewItem && (
+        <ChatPreview
+          chatnameFromParent={previewItem.chatname}
+          userIdFromParent={previewItem.userId}
+          preview={previewItem.preview}
+        />
+      )}
     </Container>
   );
 };

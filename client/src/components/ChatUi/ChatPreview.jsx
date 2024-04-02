@@ -1,22 +1,30 @@
 import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import ChatBot from "react-simple-chatbot";
-import { useNavigate } from "react-router-dom";
 import useAuthUser from "react-auth-kit/hooks/useAuthUser";
-import { usePost } from "../api/user-authentication";
+import { usePost } from "../../api/user-authentication";
 import { CircularProgress, Box } from "@mui/material";
-export const ChatPreview = ({ chatnameFromParent,userIdFromParent }) => {
+
+
+export const ChatPreview = ({
+  chatnameFromParent,
+  userIdFromParent,
+  preview,
+}) => {
   const [steps, setSteps] = useState([]);
   const auth = useAuthUser();
   const authUserId = auth && auth.user_id;
   const { chatname } = useParams();
-  const [dataReceived, setDataStatus] = useState(false);
   const {
     isPending: isFetchingChatData,
     mutateAsync: getThisChatData,
   } = usePost();
-
+  const {
+    isPending: isSavingChatData,
+    mutateAsync: saveThisChatData,
+  } = usePost();
   useEffect(() => {
+    setSteps([]);
     getThisChatData({
       postData: {
         userId: authUserId || userIdFromParent,
@@ -28,14 +36,28 @@ export const ChatPreview = ({ chatnameFromParent,userIdFromParent }) => {
       if (res.data.type) {
         setSteps((prevData) => [...prevData, ...res.data.data]);
         console.log("RESSS", res.data);
-        setDataStatus(true);
       }
     });
-  }, []);
-  useEffect(() => {}, [steps]);
+  }, [chatnameFromParent, userIdFromParent]);
+  const handleEnd = (chatHistory) => {
+    console.log(chatHistory.renderedSteps);
+    if (!preview) {
+      const savedResponse = {
+        userId: authUserId || userIdFromParent,
+        chatName: chatname || chatnameFromParent,
+        data: chatHistory.renderedSteps,
+      };
+      saveThisChatData({
+        postData: savedResponse,
+        url: "saveChat",
+      }).then((res) => {
+        console.log(res);
+      });
+    }
+  };
   return (
     <>
-      {isFetchingChatData && (
+      {(isFetchingChatData || isSavingChatData) && (
         <>
           {" "}
           <Box
@@ -59,14 +81,25 @@ export const ChatPreview = ({ chatnameFromParent,userIdFromParent }) => {
           </Box>
         </>
       )}
-
       <Box
         sx={{
-          filter: isFetchingChatData ? "blur(8px)" : "none",
+          display: !isFetchingChatData ? "" : "none",
           alignItems: "center",
         }}
       >
-        {steps.length > 0 && <ChatBot steps={steps} />}
+        {steps.length > 0 && (
+          <ChatBot
+            headerTitle={chatname || chatnameFromParent}
+            steps={steps}
+            handleEnd={handleEnd}
+            customDelay="0"
+            floating={true}
+            opened={true}
+            style={{
+              bottom: "80px",
+            }}
+          />
+        )}
       </Box>
     </>
   );

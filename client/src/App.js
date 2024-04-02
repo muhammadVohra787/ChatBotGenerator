@@ -10,11 +10,13 @@ import ForgotPasswordPage from "./views/password/ForgotPasswordPage";
 import TokenVerify from "./components/userInput/TokenVerification";
 import SingleSelect from "./components/TypesOfInput/SingleSelect";
 import DragNDrop from "./views/DragNDrop";
-import { ChatPreview } from "./views/ChatPreview";
+import { ChatPreview } from "./components/ChatUi/ChatPreview";
 import "./index.css";
 import { ChatPage } from "./views/Test";
 import TextMessage from "./components/TypesOfInput/TextMesage";
 import Dashboard from "./views/Dashboard";
+import ViewUserResponses from "./views/ViewUserResponses";
+import { Show } from "./Show";
 function App() {
   const handleResponse = (data, index) => {
     console.log(data);
@@ -22,10 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/startchat" element={<SingleSelect />} />
-      <Route
-        path="/test"
-        element={<ChatPage/>}
-      />
+      <Route path="/test" element={<Show />} />
 
       <Route path="/" element={<Home />} />
       <Route path="*" element={<NotFound1 />} />
@@ -41,6 +40,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/dnd/:chatname" element={<DragNDrop />} />
         <Route path="/previewChat/:chatname" element={<ChatPreview />} />
+        <Route path="/seeAllChats" element={<ViewUserResponses />} />
         <Route element={<ChangePassword />} path="/changePass" exact />
       </Route>
       {/* Secure Routes Ends here*/}

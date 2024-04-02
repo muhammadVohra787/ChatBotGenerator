@@ -126,12 +126,12 @@ const getChatItems = async (req, res) => {
   }
 };
 
-const getChatOnebyOneController = async (req, res) => {
+const getChatForUserAndName = async (req, res) => {
   const { chatName, userId } = req.body;
   const finalArr = [];
   let index = 0;
   try {
-    const result = await Chat.getChatOneByOne(chatName, userId);
+    const result = await Chat.getFullChatForPreview(chatName, userId);
     var checkLastIndex = 0;
 
     const lastIndex = result.length;
@@ -226,6 +226,7 @@ const getChatOnebyOneController = async (req, res) => {
           id: index + 1,
           message: "End of Chat",
           trigger: false,
+          end: true,
         };
         finalArr.push(ObjectForMessage);
       }
@@ -244,5 +245,5 @@ module.exports = {
   getAllChatsByUser,
   deleteTheChatNames,
   getChatItems,
-  getChatOnebyOneController,
+  getChatForUserAndName,
 };

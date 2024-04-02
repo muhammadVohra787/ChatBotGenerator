@@ -30,6 +30,7 @@ db.query(createChatName)
   .catch((error) => console.error("Error creating Chat Names table:", error));
 
 class Chat {
+  //for future scalability
   constructor(
     userId,
     chatName,
@@ -76,7 +77,7 @@ class Chat {
       JSON.stringify(options),
       userResponse,
     ];
-    console.log(values)
+    console.log(values);
     try {
       const result = await db.query(query, values);
       return result.rows[0];
@@ -117,7 +118,7 @@ class Chat {
     }
   }
 
-  static async getChatOneByOne(chatName, userId) {
+  static async getFullChatForPreview(chatName, userId) {
     const query = `SELECT * FROM CHATS WHERE CHATNAME=$1 AND USERID=$2;
     `;
     try {
