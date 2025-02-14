@@ -1,6 +1,3 @@
-Here's a well-structured **GitHub README** for your **Chatbot Generator** project:  
-
----
 
 # **Chatbot Generator** 🤖  
 
